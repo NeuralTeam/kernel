@@ -2,7 +2,7 @@ package asm
 
 import (
 	"errors"
-	"github.com/NeuralTeam/kernel/windows"
+	"github.com/NeuralTeam/kernel/pkg/windows"
 )
 
 type Asm struct {

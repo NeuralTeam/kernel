@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"github.com/NeuralTeam/kernel/hook"
+	"github.com/NeuralTeam/kernel/internal/hook"
 )
 
 func (k *Kernel) Id(name string) (id uint16, err error) {

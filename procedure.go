@@ -2,7 +2,7 @@ package kernel
 
 import (
 	"fmt"
-	"github.com/NeuralTeam/kernel/windows"
+	"github.com/NeuralTeam/kernel/pkg/windows"
 	"strings"
 )
 

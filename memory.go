@@ -3,7 +3,7 @@ package kernel
 import (
 	"errors"
 	"github.com/Binject/debug/pe"
-	"github.com/NeuralTeam/kernel/windows"
+	"github.com/NeuralTeam/kernel/pkg/windows"
 	"github.com/awgh/rawreader"
 	"unsafe"
 )

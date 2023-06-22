@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/NeuralTeam/kernel"
-	"github.com/NeuralTeam/kernel/dll"
+	"github.com/NeuralTeam/kernel/pkg/dll"
 	"sort"
 )
 

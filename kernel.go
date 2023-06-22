@@ -2,9 +2,9 @@ package kernel
 
 import (
 	"github.com/Binject/debug/pe"
-	"github.com/NeuralTeam/kernel/dll"
-	"github.com/NeuralTeam/kernel/hook"
-	"github.com/NeuralTeam/kernel/windows/asm"
+	"github.com/NeuralTeam/kernel/internal/hook"
+	"github.com/NeuralTeam/kernel/pkg/dll"
+	"github.com/NeuralTeam/kernel/pkg/windows/asm"
 	"github.com/awgh/rawreader"
 	"path/filepath"
 	"strings"
