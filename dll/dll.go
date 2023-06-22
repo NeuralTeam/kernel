@@ -9,8 +9,8 @@ const (
 )
 
 type Dll struct {
-	error
 	Name, Path string
+	error
 }
 
 func New(name string) (dll *Dll) {
