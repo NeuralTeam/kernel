@@ -1,7 +1,7 @@
 package dll
 
 import (
-	win "golang.org/x/sys/windows"
+	"golang.org/x/sys/windows"
 )
 
 const (
@@ -9,14 +9,14 @@ const (
 )
 
 type Dll struct {
-	Name, Path string
 	error
+	Name, Path string
 }
 
 func New(name string) (dll *Dll) {
 	dll = new(Dll)
 	dll.Name = name
-	dll.Path, dll.error = win.GetSystemDirectory()
+	dll.Path, dll.error = windows.GetSystemDirectory()
 	dll.Path = dll.Path + "\\" + dll.Name
 	return
 }
