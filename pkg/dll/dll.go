@@ -12,6 +12,6 @@ type Dll struct {
 func New(path, name string) (dll *Dll) {
 	dll = new(Dll)
 	dll.Name = name
-	dll.Path = path + `/` + dll.Name
+	dll.Path = path + `\` + dll.Name
 	return
 }
