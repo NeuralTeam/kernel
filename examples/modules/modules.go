@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/NeuralTeam/kernel"
 	"github.com/NeuralTeam/kernel/pkg/dll"
+	"golang.org/x/sys/windows"
 	"sort"
 )
 
@@ -14,7 +15,14 @@ type Modules struct {
 
 func New() (modules *Modules, err error) {
 	modules = new(Modules)
-	modules.kernel, modules.error = kernel.New(dll.New(dll.Ntdll))
+
+	directory, err := windows.GetSystemDirectory()
+	if err != nil {
+		return
+	}
+	n := dll.New(directory, dll.Ntdll)
+
+	modules.kernel, modules.error = kernel.New(n)
 	if err = modules.error; err != nil {
 		return
 	}
