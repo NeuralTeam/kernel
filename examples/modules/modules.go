@@ -10,7 +10,7 @@ import (
 type Modules struct {
 	error
 	paths  []string
-	kernel *kernel.Kernel
+	kernel kernel.Kernel
 }
 
 func New() (modules *Modules, err error) {

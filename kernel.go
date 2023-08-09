@@ -1,37 +1,24 @@
 package kernel
 
 import (
-	"github.com/Binject/debug/pe"
-	"github.com/NeuralTeam/kernel/internal/hook"
+	"github.com/NeuralTeam/kernel/internal/kernel"
 	"github.com/NeuralTeam/kernel/pkg/dll"
-	"github.com/NeuralTeam/kernel/pkg/windows/asm"
-	"github.com/awgh/rawreader"
-	"path/filepath"
-	"strings"
+	"github.com/NeuralTeam/kernel/pkg/windows"
 )
 
-type Kernel struct {
-	hook *hook.Hook
-	*asm.Asm
-	file *pe.File
+type Kernel interface {
+	Id(name string) (id uint16, err error)
+	IdOrdinal(ordinal uint32) (id uint16, err error)
+
+	MemoryId(name string) (uint16, error)
+	ModuleOrder(i int) (start uintptr, size uintptr, path string)
+	Images() (images map[string]windows.Image)
+	WriteMemory(buf []byte, destination uintptr)
+
+	FuncPtr(name string) (ptr uint64, err error)
+	NewProc(name string) *windows.Procedure
 }
 
-func New(dll *dll.Dll) (kernel *Kernel, err error) {
-	kernel = new(Kernel)
-	kernel.hook = new(hook.Hook)
-	kernel.file = new(pe.File)
-	kernel.file.OptionalHeader = new(pe.OptionalHeader32)
-	kernel.Asm = asm.New()
-
-	images := kernel.Images()
-	for k, image := range images {
-		if !strings.EqualFold(k, dll.Path) || !strings.EqualFold(dll.Name, filepath.Base(k)) {
-			continue
-		}
-		raw := rawreader.New(uintptr(image.BaseAddr), int(image.Size))
-		kernel.hook.SetMemLoc(uintptr(image.BaseAddr))
-		kernel.file, err = pe.NewFileFromMemory(raw)
-		break
-	}
-	return
+func New(dll *dll.Dll) (Kernel, error) {
+	return kernel.New(dll)
 }

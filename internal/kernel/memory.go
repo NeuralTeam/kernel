@@ -8,16 +8,6 @@ import (
 	"unsafe"
 )
 
-// WriteMemory writes memory to the specified address
-// May cause panic if memory is not writable
-func (k *Kernel) WriteMemory(buf []byte, destination uintptr) {
-	for index := uint32(0); index < uint32(len(buf)); index++ {
-		writePtr := unsafe.Pointer(destination + uintptr(index))
-		v := (*byte)(writePtr)
-		*v = buf[index]
-	}
-}
-
 // MemoryId takes the exported syscall name or ordinal and gets the ID it refers to
 func (k *Kernel) MemoryId(name string) (uint16, error) {
 	return k.memoryId(name, 0, false)
@@ -50,6 +40,16 @@ func (k *Kernel) Images() (images map[string]windows.Image) {
 		i++
 	}
 	return
+}
+
+// WriteMemory writes memory to the specified address
+// May cause panic if memory is not writable
+func (k *Kernel) WriteMemory(buf []byte, destination uintptr) {
+	for index := uint32(0); index < uint32(len(buf)); index++ {
+		writePtr := unsafe.Pointer(destination + uintptr(index))
+		v := (*byte)(writePtr)
+		*v = buf[index]
+	}
 }
 
 func (k *Kernel) memoryId(name string, ord uint32, useOrd bool) (id uint16, err error) {
