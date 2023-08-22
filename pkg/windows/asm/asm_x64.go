@@ -5,39 +5,50 @@ import (
 	"github.com/NeuralTeam/kernel/pkg/windows"
 )
 
-type Asm struct {
+type Asm64 interface {
 	// GetPeb returns the in-memory start address of PEB while making no API calls
-	GetPeb func() uintptr
-	// GetDllStart returns the start address of ntdll in memory
-	GetDllStart func() (address uintptr, size uintptr)
+	GetPeb() uintptr
+	// GetNtdllStart returns the start address of ntdll in memory
+	GetNtdllStart() (start uintptr, size uintptr)
 	// GetModuleLoadedOrder returns the start address of the module located at i in the load order.
-	GetModuleLoadedOrder func(i int) (start uintptr, size uintptr, path *windows.Utf16)
+	GetModuleLoadedOrder(i int) (start uintptr, size uintptr, path *windows.Utf16)
 	// GetModuleLoadedOrderPtr returns a pointer to the LDR data table entry
-	GetModuleLoadedOrderPtr func(i int) *windows.LdrDataTableEntry
+	GetModuleLoadedOrderPtr(i int) *windows.LdrDataTableEntry
 	// Syscall calls the system function specified by ID with arguments
-	Syscall func(id uint16, argh ...uintptr) (err error)
+	Syscall(id uint16, args ...uintptr) (error uint32, err error)
 }
 
-func New() *Asm {
-	asm := new(Asm)
-	asm.GetPeb = getPeb
-	asm.GetDllStart = getDllStart
-	asm.GetModuleLoadedOrder = getModuleLoadedOrder
-	asm.GetModuleLoadedOrderPtr = getModuleLoadedOrderPtr
-	asm.Syscall = syscall
-	return asm
-}
+type asm64 uintptr
 
-func syscall(id uint16, argh ...uintptr) (err error) {
-	result := _syscall(id, argh...)
-	if result != 0 {
+func (a asm64) Syscall(id uint16, args ...uintptr) (error uint32, err error) {
+	if error = a.syscall(id, args...); error != 0 {
 		err = errors.New("non-zero return from syscall")
 	}
-	return err
+	return
+}
+
+func (a asm64) GetPeb() uintptr {
+	return getPeb()
+}
+
+func (a asm64) GetNtdllStart() (start uintptr, size uintptr) {
+	return getNtdllStart()
+}
+
+func (a asm64) GetModuleLoadedOrder(i int) (start uintptr, size uintptr, path *windows.Utf16) {
+	return getModuleLoadedOrder(i)
+}
+
+func (a asm64) GetModuleLoadedOrderPtr(i int) *windows.LdrDataTableEntry {
+	return getModuleLoadedOrderPtr(i)
+}
+
+func (a asm64) syscall(id uint16, args ...uintptr) (error uint32) {
+	return syscall(id, args...)
 }
 
 func getPeb() uintptr
-func getDllStart() (address uintptr, size uintptr)
+func getNtdllStart() (start uintptr, size uintptr)
 func getModuleLoadedOrder(i int) (start uintptr, size uintptr, path *windows.Utf16)
 func getModuleLoadedOrderPtr(i int) *windows.LdrDataTableEntry
-func _syscall(id uint16, argh ...uintptr) uint32
+func syscall(id uint16, args ...uintptr) (error uint32)

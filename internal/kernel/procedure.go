@@ -7,10 +7,10 @@ import (
 )
 
 func (k *Kernel) FuncPtr(name string) (ptr uint64, err error) {
-	exports, err := k.file.Exports()
+	exports, err := k.File.Exports()
 	for _, export := range exports {
 		if strings.EqualFold(name, export.Name) {
-			ptr = uint64(k.hook.GetMemLoc()) + uint64(export.VirtualAddress)
+			ptr = uint64(k.Hook.GetMemLoc()) + uint64(export.VirtualAddress)
 		}
 	}
 	if ptr == 0 {

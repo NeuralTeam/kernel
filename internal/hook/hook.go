@@ -5,7 +5,6 @@ import "fmt"
 type Hook struct {
 	memLoc uintptr
 	bytes  []byte
-	error
 }
 
 // Start are the bytes expected to be seen at the start of the function

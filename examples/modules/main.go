@@ -9,5 +9,8 @@ func main() {
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	log.Println(modules.Get())
+	modules.Get().Range(func(key, value any) bool {
+		log.Println(key, value)
+		return true
+	})
 }
