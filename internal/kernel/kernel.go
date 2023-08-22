@@ -4,34 +4,30 @@ import (
 	"github.com/Binject/debug/pe"
 	"github.com/NeuralTeam/kernel/internal/hook"
 	"github.com/NeuralTeam/kernel/pkg/dll"
-	"github.com/NeuralTeam/kernel/pkg/windows/asm"
 	"github.com/awgh/rawreader"
 	"path/filepath"
 	"strings"
 )
 
 type Kernel struct {
-	hook *hook.Hook
-	*asm.Asm
-	file *pe.File
+	Hook *hook.Hook
+	File *pe.File
 }
 
-func New(dll *dll.Dll) (kernel *Kernel, err error) {
+func New(dll dll.Dll) (kernel *Kernel, err error) {
 	kernel = new(Kernel)
-	kernel.hook = new(hook.Hook)
-	kernel.file = new(pe.File)
-	kernel.file.OptionalHeader = new(pe.OptionalHeader32)
-	kernel.Asm = asm.New()
+	kernel.Hook = new(hook.Hook)
+	kernel.File = new(pe.File)
+	kernel.File.OptionalHeader = new(pe.OptionalHeader32)
 
 	images := kernel.Images()
 	for k, image := range images {
-		if !strings.EqualFold(k, dll.Path) || !strings.EqualFold(dll.Name, filepath.Base(k)) {
-			continue
+		if strings.EqualFold(k, dll.Path()) || strings.EqualFold(dll.String(), filepath.Base(k)) {
+			raw := rawreader.New(uintptr(image.BaseAddr), int(image.Size))
+			kernel.Hook.SetMemLoc(uintptr(image.BaseAddr))
+			kernel.File, err = pe.NewFileFromMemory(raw)
+			break
 		}
-		raw := rawreader.New(uintptr(image.BaseAddr), int(image.Size))
-		kernel.hook.SetMemLoc(uintptr(image.BaseAddr))
-		kernel.file, err = pe.NewFileFromMemory(raw)
-		break
 	}
 	return
 }

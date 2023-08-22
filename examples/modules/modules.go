@@ -3,38 +3,27 @@ package main
 import (
 	"github.com/NeuralTeam/kernel"
 	"github.com/NeuralTeam/kernel/pkg/dll"
-	"golang.org/x/sys/windows"
-	"sort"
+	"sync"
 )
 
 type Modules struct {
-	error
-	paths  []string
-	kernel kernel.Kernel
+	Images *sync.Map
+	Kernel kernel.Kernel
 }
 
 func New() (modules *Modules, err error) {
 	modules = new(Modules)
-
-	directory, err := windows.GetSystemDirectory()
-	if err != nil {
+	if modules.Kernel, err = kernel.New(dll.Ntdll); err != nil {
 		return
 	}
-	n := dll.New(directory, dll.Ntdll)
-
-	modules.kernel, modules.error = kernel.New(n)
-	if err = modules.error; err != nil {
-		return
-	}
-	modules.paths = modules.Get()
+	modules.Get()
 	return
 }
 
-func (m *Modules) Get() (paths []string) {
-	images := m.kernel.Images()
-	for p := range images {
-		paths = append(paths, p)
+func (m *Modules) Get() *sync.Map {
+	m.Images = new(sync.Map)
+	for p, i := range m.Kernel.Images() {
+		m.Images.Store(p, i)
 	}
-	sort.Strings(paths)
-	return
+	return m.Images
 }

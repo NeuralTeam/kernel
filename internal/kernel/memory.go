@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/Binject/debug/pe"
 	"github.com/NeuralTeam/kernel/pkg/windows"
+	"github.com/NeuralTeam/kernel/pkg/windows/asm"
 	"github.com/awgh/rawreader"
 	"unsafe"
 )
@@ -16,7 +17,7 @@ func (k *Kernel) MemoryId(name string) (uint16, error) {
 // ModuleOrder returns the start address of the module located at i in the load order
 func (k *Kernel) ModuleOrder(i int) (start uintptr, size uintptr, path string) {
 	var utf16 *windows.Utf16
-	start, size, utf16 = k.GetModuleLoadedOrder(i)
+	start, size, utf16 = asm.Asm.GetModuleLoadedOrder(i)
 	path = utf16.String()
 	return
 }
@@ -46,14 +47,15 @@ func (k *Kernel) Images() (images map[string]windows.Image) {
 // May cause panic if memory is not writable
 func (k *Kernel) WriteMemory(buf []byte, destination uintptr) {
 	for index := uint32(0); index < uint32(len(buf)); index++ {
-		writePtr := unsafe.Pointer(destination + uintptr(index))
+		a := destination + uintptr(index)
+		writePtr := unsafe.Pointer(&a)
 		v := (*byte)(writePtr)
 		*v = buf[index]
 	}
 }
 
 func (k *Kernel) memoryId(name string, ord uint32, useOrd bool) (id uint16, err error) {
-	start, size := k.GetDllStart()
+	start, size := asm.Asm.GetNtdllStart()
 	raw := rawreader.New(start, int(size))
 	file, err := pe.NewFileFromMemory(raw)
 	fileBytes, err := file.Bytes()

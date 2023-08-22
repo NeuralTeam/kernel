@@ -19,6 +19,6 @@ type Kernel interface {
 	NewProc(name string) *windows.Procedure
 }
 
-func New(dll *dll.Dll) (Kernel, error) {
+func New(dll dll.Dll) (Kernel, error) {
 	return kernel.New(dll)
 }

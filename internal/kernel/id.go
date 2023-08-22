@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"github.com/NeuralTeam/kernel/internal/hook"
+	"github.com/NeuralTeam/kernel/pkg/windows/asm"
 )
 
 func (k *Kernel) Id(name string) (id uint16, err error) {
@@ -18,11 +19,11 @@ func (k *Kernel) IdOrdinal(ordinal uint32) (id uint16, err error) {
 }
 
 func (k *Kernel) id(name string, ord uint32, useOrd, useNeighbor bool) (id uint16, err error) {
-	exports, err := k.file.Exports()
+	exports, err := k.File.Exports()
 	if err != nil {
 		return
 	}
-	fileBytes, err := k.file.Bytes()
+	fileBytes, err := k.File.Bytes()
 	for _, export := range exports {
 		if err != nil {
 			return
@@ -31,14 +32,14 @@ func (k *Kernel) id(name string, ord uint32, useOrd, useNeighbor bool) (id uint1
 			export.Name != name {
 			return
 		}
-		offset := rvaToOffset(k.file, export.VirtualAddress)
+		offset := rvaToOffset(k.File, export.VirtualAddress)
 		buffer := fileBytes[offset : offset+10]
 		id, err = idFromRawBytes(buffer)
 
-		if !errors.As(err, &k.hook) && !useNeighbor {
+		if !errors.As(err, &k.Hook) && !useNeighbor {
 			return
 		}
-		start, size := k.GetDllStart()
+		start, size := asm.Asm.GetNtdllStart()
 		distanceNeighbor := 0
 		for i := uintptr(offset); i < start+size; i += 1 {
 			if fileBytes[i] == byte('\x0f') &&
@@ -47,7 +48,7 @@ func (k *Kernel) id(name string, ord uint32, useOrd, useNeighbor bool) (id uint1
 				distanceNeighbor++
 
 				id, err = idFromRawBytes(fileBytes[i+14 : i+14+8])
-				if !errors.As(err, &k.hook) {
+				if !errors.As(err, &k.Hook) {
 					id -= uint16(distanceNeighbor)
 					return
 				}
@@ -60,7 +61,7 @@ func (k *Kernel) id(name string, ord uint32, useOrd, useNeighbor bool) (id uint1
 				fileBytes[i+2] == byte('\xc3') {
 				distanceNeighbor++
 				id, err = idFromRawBytes(fileBytes[i+14 : i+14+8])
-				if !errors.As(err, &k.hook) {
+				if !errors.As(err, &k.Hook) {
 					id += uint16(distanceNeighbor) - 1
 					return
 				}

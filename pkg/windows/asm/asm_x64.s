@@ -5,8 +5,8 @@ TEXT ·getPeb(SB), $0-8
      MOVQ	AX, ret+0(FP)
      RET
 
-// func getDllStart() (address uintptr, size uintptr)
-TEXT ·getDllStart(SB), $0-16
+// func getNtdllStart() (start uintptr, size uintptr)
+TEXT ·getNtdllStart(SB), $0-16
 	// All operations push values into AX
 	// PEB
 	MOVQ 0x60(GS), AX
@@ -29,7 +29,7 @@ TEXT ·getDllStart(SB), $0-16
 		
 	RET 
 
-// func getModuleLoadedOrder(i int) (start uintptr, size uintptr)
+// func getModuleLoadedOrder(i int) (start uintptr, size uintptr, path *windows.Utf16)
 TEXT ·getModuleLoadedOrder(SB), $0-32
 	// All operations push values into AX
 	// PEB
@@ -62,7 +62,7 @@ endloop:
 	// SYSCALL
 	RET 
 
-// func getModuleLoadedOrderPtr(i int) *win.LdrDataTableEntry
+// func getModuleLoadedOrderPtr(i int) *windows.LdrDataTableEntry
 TEXT ·getModuleLoadedOrderPtr(SB), $0-16
 	// All operations push values into AX
 	// PEB
@@ -90,8 +90,8 @@ endloop:
 
 // Based on https://golang.org/src/runtime/sys_windows_amd64.s
 #define maxargs 16
-// func _syscall(id uint16, argh ...uintptr) uint32
-TEXT ·_syscall(SB), $0-56
+// func syscall(id uint16, args ...uintptr) (error uint32)
+TEXT ·syscall(SB), $0-56
 	XORQ AX,AX
 	MOVW id+0(FP), AX
 	PUSHQ CX
