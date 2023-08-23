@@ -1,6 +1,7 @@
 package kernel
 
 import (
+	"fmt"
 	"github.com/Binject/debug/pe"
 	"github.com/NeuralTeam/kernel/internal/hook"
 	"github.com/NeuralTeam/kernel/pkg/dll"
@@ -20,14 +21,14 @@ func New(dll dll.Dll) (kernel *Kernel, err error) {
 	kernel.File = new(pe.File)
 	kernel.File.OptionalHeader = new(pe.OptionalHeader32)
 
-	images := kernel.Images()
-	for k, image := range images {
-		if strings.EqualFold(k, dll.Path()) || strings.EqualFold(dll.String(), filepath.Base(k)) {
+	for path, image := range kernel.Images() {
+		if strings.EqualFold(path, dll.Path()) || strings.EqualFold(dll.String(), filepath.Base(path)) {
 			raw := rawreader.New(uintptr(image.BaseAddr), int(image.Size))
 			kernel.Hook.SetMemLoc(uintptr(image.BaseAddr))
 			kernel.File, err = pe.NewFileFromMemory(raw)
-			break
+			return
 		}
 	}
+	err = fmt.Errorf("module not found: %v", dll)
 	return
 }

@@ -6,7 +6,8 @@ import (
 )
 
 var (
-	SystemDirectory, _ = windows.GetSystemDirectory()
+	SystemDirectory, _           = windows.GetSystemDirectory()
+	SystemDirectoryWithSeparator = SystemDirectory + string(os.PathSeparator)
 )
 
 type Dll int
@@ -22,9 +23,8 @@ func (d Dll) String() string {
 }
 
 func (d Dll) Path() string {
-	SystemDirectory += string(os.PathSeparator)
 	return [...]string{
-		SystemDirectory + Ntdll.String(),
+		SystemDirectoryWithSeparator + Ntdll.String(),
 	}[d]
 }
 
