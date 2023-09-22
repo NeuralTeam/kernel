@@ -1,6 +1,6 @@
 module github.com/NeuralTeam/kernel
 
-go 1.19
+go 1.21.1
 
 require (
 	github.com/Binject/debug v0.0.0-20230508195519-26db73212a7a
